@@ -1,5 +1,4 @@
 
-Ai insight · PY
 """
 ai_insight.py
 Claude API 호출 → 탭별 인사이트 생성
