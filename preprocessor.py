@@ -192,16 +192,14 @@ class Preprocessor:
     def _af_revenue(self, df, col_af="제휴사명"):
         """당월인증=Y + 판매 + VAT제외 거래액 제휴사별 집계"""
         flt = df[
-            (df["당월인증"] == "Y") &
-            (df["정산구분"] == "판매")
+            (df["당월인증"] == "Y")
         ].copy()
         return flt.groupby(col_af)["거래액_VAT제외"].sum()
 
     def _af_buyers(self, df, col_af="제휴사명"):
         """당월인증=Y + 판매 구매고객 unique count"""
         flt = df[
-            (df["당월인증"] == "Y") &
-            (df["정산구분"] == "판매")
+            (df["당월인증"] == "Y")
         ].copy()
         return flt.groupby(col_af)["고객번호"].nunique()
 
@@ -251,7 +249,7 @@ class Preprocessor:
 
         # 전체 KPI
         def _total_kpi(df, cert_df, uv_df, cert_af_col):
-            flt = df[(df["당월인증"] == "Y") & (df["정산구분"] == "판매")]
+            flt = df[(df["당월인증"] == "Y")]
             rev   = float(flt["거래액_VAT제외"].sum())
             buyers = int(flt["고객번호"].nunique())
             cert  = int(cert_df["총합계"].sum())
@@ -311,8 +309,8 @@ class Preprocessor:
         af_summary.sort(key=lambda x: x["revenue_26"], reverse=True)
 
         # 일자별 거래액 추이
-        flt26 = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")]
-        flt25 = self.df25[(self.df25["당월인증"]=="Y") & (self.df25["정산구분"]=="판매")]
+        flt26 = self.df26[(self.df26["당월인증"] == "Y")]
+        flt25 = self.df25[(self.df25["당월인증"] == "Y")]
         daily26 = flt26.groupby(flt26["정산일시일"].dt.date)["거래액_VAT제외"].sum()
         daily25 = flt25.groupby(flt25["정산일시일"].dt.date)["거래액_VAT제외"].sum()
 
@@ -376,8 +374,8 @@ class Preprocessor:
         """탭3: 제휴사별 카테고리·브랜드"""
         data = {}
 
-        flt26 = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")].copy()
-        flt25 = self.df25[(self.df25["당월인증"]=="Y") & (self.df25["정산구분"]=="판매")].copy()
+        flt26 = self.df26[(self.df26["당월인증"] == "Y")].copy()
+        flt25 = self.df25[(self.df25["당월인증"] == "Y")].copy()
         tot26 = float(flt26["거래액_VAT제외"].sum())
         tot25 = float(flt25["거래액_VAT제외"].sum())
 
@@ -426,8 +424,8 @@ class Preprocessor:
 
     def _tab4(self, af_list):
         """탭4: 카테고리 전년비 + 역행 제휴사"""
-        flt26 = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")]
-        flt25 = self.df25[(self.df25["당월인증"]=="Y") & (self.df25["정산구분"]=="판매")]
+        flt26 = self.df26[(self.df26["당월인증"] == "Y")]
+        flt25 = self.df25[(self.df25["당월인증"] == "Y")]
         tot26 = float(flt26["거래액_VAT제외"].sum())
         tot25 = float(flt25["거래액_VAT제외"].sum())
 
@@ -505,8 +503,8 @@ class Preprocessor:
 
     def _tab5(self, af_list):
         """탭5: 브랜드 상승/하락 TOP10 + 역행 브랜드"""
-        flt26 = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")]
-        flt25 = self.df25[(self.df25["당월인증"]=="Y") & (self.df25["정산구분"]=="판매")]
+        flt26 = self.df26[(self.df26["당월인증"] == "Y")]
+        flt25 = self.df25[(self.df25["당월인증"] == "Y")]
         tot26 = float(flt26["거래액_VAT제외"].sum())
         tot25 = float(flt25["거래액_VAT제외"].sum())
 
@@ -587,8 +585,8 @@ class Preprocessor:
 
     def _tab6(self, af_list):
         """탭6: 몰전체 비교"""
-        flt26 = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")]
-        flt25 = self.df25[(self.df25["당월인증"]=="Y") & (self.df25["정산구분"]=="판매")]
+        flt26 = self.df26[(self.df26["당월인증"] == "Y")]
+        flt25 = self.df25[(self.df25["당월인증"] == "Y")]
 
         # 전체 KPI
         af_rev26 = float(flt26["거래액_VAT제외"].sum())
@@ -725,15 +723,15 @@ class Preprocessor:
             return df[df["정산일시일"].dt.date.isin(date_dts)]
 
         flt26_wk = _filter_wk(
-            self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")],
+            self.df26[(self.df26["당월인증"] == "Y")],
             wk_dates
         )
         flt25_wk = _filter_wk(
-            self.df25[(self.df25["당월인증"]=="Y") & (self.df25["정산구분"]=="판매")],
+            self.df25[(self.df25["당월인증"] == "Y")],
             wy_dates
         )
         flt26_wp = _filter_wk(
-            self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")],
+            self.df26[(self.df26["당월인증"] == "Y")],
             wp_dates
         )
 
@@ -826,7 +824,7 @@ class Preprocessor:
 
     def _tab8(self, af_list):
         """탭8: 회원구분 분석"""
-        flt26 = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")].copy()
+        flt26 = self.df26[(self.df26["당월인증"] == "Y")].copy()
         seg_col = "기존/win-back/신규"
 
         tot26 = float(flt26["거래액_VAT제외"].sum())
@@ -1012,7 +1010,7 @@ class Preprocessor:
 
         # 2. VAT 역산 체크
         try:
-            s = self.df26[(self.df26["당월인증"]=="Y") & (self.df26["정산구분"]=="판매")]
+            s = self.df26[(self.df26["당월인증"] == "Y")]
             vat_ratio = (s["거래액_VAT제외"] / s["거래액"]).median()
             ok = 0.88 <= vat_ratio <= 0.94
             qc["VAT_역산_체크"] = dict(ok=ok, msg=f"중앙값 비율={vat_ratio:.3f} (정상범위 0.88~0.94)")
