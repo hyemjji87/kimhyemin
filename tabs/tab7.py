@@ -1,4 +1,4 @@
-"""tabs/tab7.py — 주차 분析 (주차 선택 가능)"""
+"""tabs/tab7.py — 주차 分析 (주차 선택 가능)"""
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
@@ -26,9 +26,9 @@ def _calc_week_kpi(df26, df25, wk_dates_cur, wk_dates_prev_year, wk_dates_prev,
         date_set = {datetime.strptime(d, "%Y-%m-%d").date() for d in dates_set if d}
         return df[df["정산일시일"].dt.date.isin(date_set)]
 
-    flt26 = _filter(df26[(df26["당월인증"]=="Y") & (df26["정산구분"]=="판매")], wk_dates_cur)
-    flt25 = _filter(df25[(df25["당월인증"]=="Y") & (df25["정산구분"]=="판매")], wk_dates_prev_year) if df25 is not None and len(df25)>0 else pd.DataFrame()
-    flt26_wp = _filter(df26[(df26["당월인증"]=="Y") & (df26["정산구분"]=="판매")], wk_dates_prev)
+    flt26 = _filter(df26[(df26["당월인증"] == "Y")], wk_dates_cur)
+    flt25 = _filter(df25[(df25["당월인증"] == "Y")], wk_dates_prev_year) if df25 is not None and len(df25)>0 else pd.DataFrame()
+    flt26_wp = _filter(df26[(df26["당월인증"] == "Y")], wk_dates_prev)
 
     def _kpi(df):
         if len(df) == 0:
@@ -119,7 +119,7 @@ def render(data: dict, meta: dict):
     wk_wp_default  = t7.get("wk_prev", "")
 
     # 주차 선택 UI
-    st.markdown("### 📅 분析 주차 선택")
+    st.markdown("### 📅 分析 주차 선택")
     col_sel1, col_sel2, col_sel3 = st.columns(3)
 
     if has_raw:
@@ -186,7 +186,7 @@ def render(data: dict, meta: dict):
     else:
         # raw 없으면 전처리 결과 그대로 사용
         with col_sel1:
-            st.info(f"분析 주차: **{wk_cur_default}** (기본값)")
+            st.info(f"分析 주차: **{wk_cur_default}** (기본값)")
         with col_sel2:
             st.info(f"전년 대응: **{wk_wy_default}**")
         with col_sel3:
@@ -202,7 +202,7 @@ def render(data: dict, meta: dict):
         day_count  = t7.get("wk_day_count", 0)
 
     # ── 경고 배너 ──
-    warn_box(f"분析 주차: {wk_cur} ({day_count}일) | "
+    warn_box(f"分析 주차: {wk_cur} ({day_count}일) | "
              f"전년: {wk_wy_default if not has_raw else ''} | "
              "※ raw 데이터 로드 시 주차 변경 가능")
 
