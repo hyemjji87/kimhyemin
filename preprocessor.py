@@ -86,6 +86,34 @@ class Preprocessor:
             kw["skiprows"] = skiprows
         return pd.read_excel(f, sheet_name=sheet, **kw)
 
+    def _resolve_quarter_sheet(self, f, ref_date):
+        """
+        ref_date가 속한 분기(1-3월/4-6월/7-9월/10-12월)의 '인증거래액_*' 시트명을
+        실제 워크북에서 자동으로 찾아 반환한다.
+        하드코딩("인증거래액_4-6월")이 아니라, 분기 시작월·종료월 숫자가 모두 포함된
+        시트를 찾기 때문에 구분자가 "-"든 "~"든 "～"든 상관없이 매칭된다.
+        """
+        q_start = ((ref_date.month - 1) // 3) * 3 + 1
+        q_end = q_start + 2
+
+        if hasattr(f, "seek"):
+            f.seek(0)
+        xl = pd.ExcelFile(f, engine="openpyxl")
+
+        candidates = [
+            s for s in xl.sheet_names
+            if "인증거래액" in s and str(q_start) in s and str(q_end) in s
+        ]
+        if not candidates:
+            raise ValueError(
+                f"'{q_start}~{q_end}월' 인증거래액 시트를 찾을 수 없습니다. "
+                f"업로드한 파일의 실제 시트 목록: {xl.sheet_names}"
+            )
+        if len(candidates) > 1:
+            # 가장 짧은 이름(가장 정확히 매칭되는 것) 우선
+            candidates.sort(key=len)
+        return candidates[0]
+
     def _load_all(self):
         """모든 시트 로딩 + 기본 전처리"""
 
@@ -128,7 +156,8 @@ class Preprocessor:
         self.df26 = df26[df26["정산일시일"] <= self.mtd_end].copy()
 
         # ── Step 3: 2025 인증거래액 ──
-        df25 = self._load_excel(self.file_25_sale, "인증거래액_4-6월")
+        sheet_25 = self._resolve_quarter_sheet(self.file_25_sale, self.mtd_end_25)
+        df25 = self._load_excel(self.file_25_sale, sheet_25)
         df25.columns = [str(c).strip() for c in df25.columns]
         df25["정산일시일"] = pd.to_datetime(df25["정산일시일"], errors="coerce")
         df25["거래액_VAT제외"] = pd.to_numeric(df25["거래액_VAT제외"], errors="coerce")
