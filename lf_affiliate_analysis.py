@@ -197,14 +197,15 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# JSON 다운로드 버튼 (헤더 바로 아래)
+# JSON / 전체 HTML 다운로드 버튼 (헤더 바로 아래)
 if "dash_data" in st.session_state:
     json_bytes = json.dumps(
         st.session_state["dash_data"],
         ensure_ascii=False, default=str, indent=2
     ).encode("utf-8")
     mtd_str = str(st.session_state.get("mtd_end_str","")).replace("-","")
-    col_dl1, col_dl2 = st.columns([4, 1])
+
+    col_dl1, col_dl2, col_dl3 = st.columns([3, 1, 1])
     with col_dl2:
         st.download_button(
             "⬇️ 전체 JSON 다운로드",
@@ -214,6 +215,21 @@ if "dash_data" in st.session_state:
             use_container_width=True,
             help="Claude에게 전체 데이터 분석 요청 시 사용"
         )
+    with col_dl3:
+        try:
+            from html_export import build_html_report
+            html_str = build_html_report(st.session_state["dash_data"])
+            html_bytes = html_str.encode("utf-8")
+            st.download_button(
+                "🌐 전체 대시보드 HTML 다운로드",
+                data=html_bytes,
+                file_name=f"dashboard_report_{mtd_str}.html",
+                mime="text/html",
+                use_container_width=True,
+                help="9개 탭 전체(제휴사별 하위 선택 포함)를 정적 HTML 1개 파일로 저장"
+            )
+        except Exception as ex:
+            st.caption(f"⚠️ HTML 내보내기 생성 실패: {ex}")
 
 # 품질 경고
 if warns:
